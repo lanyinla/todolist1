@@ -14,13 +14,13 @@ const requestListener = (req, res) => {
     'Content-Type': 'application/json'
     }
 
-    let body = "";
-    // let num = 0;
+    let chunks = [];
+    
 
     req.on("data", (chunk) => {
         // console.log(`第${num}台物流車到！`);
         // console.log(`載了：${chunk.toString()}`);
-        body += chunk;
+        chunks.push(chunk);
     })
 
     if(req.url == "/todos" && req.method == "GET"){
@@ -34,7 +34,8 @@ const requestListener = (req, res) => {
         req.on("end", ()=> {
             try{
                 // console.log("=======物流結束======");
-                const title = JSON.parse(body).title;
+                const resultString = Buffer.concat(chunks).toString();
+                const title = JSON.parse(resultString).title;
                 if(title !== undefined){
                     const todo = {
                     "title": title,
@@ -81,7 +82,8 @@ const requestListener = (req, res) => {
     }else if(req.url.startsWith("/todos/") && req.method == "PATCH"){
         req.on("end", ()=>{
             try{
-                const title = JSON.parse(body).title;
+                const resultString = Buffer.concat(chunks).toString();
+                const title = JSON.parse(resultString).title;
                 const id = req.url.split("/").pop();
                 const index = todos.findIndex(element => element.id == id);
                 if(title !== undefined && id !== -1){
